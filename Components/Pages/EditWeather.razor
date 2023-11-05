@@ -1,0 +1,64 @@
+@attribute [RenderModeInteractiveServer]
+
+@inject IWeatherService WeatherService
+
+    
+<h3>@Title</h3>
+<span>@Status</span>
+
+<EditForm id="forecast-form" Model="Input" FormName="editWeather" OnValidSubmit="OnValidSubmitAsync" method="post">
+        <DataAnnotationsValidator/>
+        <ValidationSummary class="text-danger"/>
+    <div class="mb-3">
+        <label for="summary" class="form-label">Summary</label>
+        <InputText id="summary" @bind-Value="Input.Summary" class="form-control" placeholder="Summary"/>
+    </div>
+    <div class="mb-3">
+        <label for="date" class="form-label">Date</label>
+        <InputDate id="date" @bind-Value="Input.Date" ParsingErrorMessage="Must be a date" aria-required="true" placeholder="Date" />
+        <ValidationMessage For="() => Input.Date" class="text-danger"/>
+    </div>
+    <div class="mb-3">
+        <label for="tempC" class="form-label">Temperature in Celsius</label>
+        <InputNumber @bind-Value="Input.TemperatureC" ParsingErrorMessage="Must be an integer value" aria-required="true" placeholder="Temperature in C" />
+        <ValidationMessage For="() => Input.TemperatureC" class="text-danger"/>
+    </div>
+	<input type="submit" value="Submit" class="btn btn-primary"/>
+    
+</EditForm>
+
+
+ <!-- Use events to manage reload -->
+@code {
+
+    [Parameter]
+    public bool IsNew { get; set; } = true;
+    
+    [Parameter]
+    public WeatherForecast? WeatherForecast { get; set; }
+
+
+    [SupplyParameterFromForm]
+    private Forecast? Input { get; set; } = default!;
+
+    private string Status = "Not submitted";
+    private string Title => IsNew ? "Add Forecast" : "Edit Forecast";
+    // https://blazor-university.com/components/component-events/   
+
+    protected override void OnInitialized()
+    {
+        if (WeatherForecast is not null)
+        {
+            Input = Forecast.FromEntity(WeatherForecast);
+        }
+        Input ??= new();
+    }
+    private async Task OnValidSubmitAsync()
+    {
+        await Task.Delay(500);
+        Status = $"Form submitted with temp: {Input.TemperatureC}";
+    // Post data to the server, etc
+    }    
+
+
+}
