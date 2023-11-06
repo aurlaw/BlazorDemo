@@ -4,7 +4,7 @@ namespace BlazorDemo.Models;
 
 public sealed class Forecast
 {
-    public int Id { get; set; }
+    public int? Id { get; set; }
     [Required] 
     public DateOnly Date { get; set; } = DateOnly.FromDateTime(DateTime.UtcNow);
     [Required]
@@ -26,7 +26,7 @@ public sealed class Forecast
     {
         return new WeatherForecast
         {
-            Id = Id,
+            Id = Id ?? 0,
             Date = Date,
             TemperatureC = TemperatureC,
             Summary = Summary

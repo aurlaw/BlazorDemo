@@ -1,8 +1,10 @@
 ﻿@page "/weather"
+@attribute [RenderModeInteractiveServer]
 
 @attribute [StreamRendering(true)]
 
 @inject IWeatherService WeatherService
+@inject ILogger<Weather> Logger
 
 <PageTitle>Weather</PageTitle>
 
@@ -25,31 +27,58 @@ else
             <th>Temp. (C)</th>
             <th>Temp. (F)</th>
             <th>Summary</th>
+            <th></th>
         </tr>
         </thead>
         <tbody>
         @foreach (var forecast in forecasts)
         {
-            <tr>
+            @* <tr>
                 <td>@forecast.Date.ToShortDateString()</td>
                 <td>@forecast.TemperatureC</td>
                 <td>@forecast.TemperatureF</td>
                 <td>@forecast.Summary</td>
-            </tr>
+                <td>
+                    <button class="btn btn-secondary">Edit</button>
+                    <button class="btn btn-danger">Delete</button>
+                </td>
+            </tr> *@
+            <WeatherCell WeatherForecast="forecast" />
         }
         </tbody>
     </table>
+    <p>
+        @messageText
+    </p>
+
     
-    <EditWeather IsNew="true" /> <!-- Use events to manage reload -->
+    <EditWeather IsNew="true" OnSave="@OnWeatherSave"  /> <!-- Use events to manage reload -->
+    
+
 }
 
 @code {
     private WeatherForecast[]? forecasts;
-
+    private string messageText = string.Empty;
     protected override async Task OnInitializedAsync()
+    {
+        Logger.LogInformation("Init");
+        await LoadWeather();
+    }
+
+    private async Task LoadWeather() 
     {
         var data = await WeatherService.GetWeather();
         forecasts = data.ToArray();
+
+
+    }
+
+    private async Task OnWeatherSave(string message) 
+    {
+        Logger.LogInformation("OnWeatherSave");
+        messageText = message;
+        await LoadWeather();        
     }
 
 

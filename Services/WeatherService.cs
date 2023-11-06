@@ -10,16 +10,15 @@ public class WeatherService : IWeatherService
 {
 
     private readonly ApplicationDbContext _dbContext;
-
-    public WeatherService(ApplicationDbContext dbContext)
+    private readonly ILogger<WeatherService> _logger;
+    public WeatherService(ApplicationDbContext dbContext, ILogger<WeatherService> logger)
     {
         _dbContext = dbContext;
+        _logger = logger;
     }
 
     public async Task<IEnumerable<WeatherForecast>> GetWeather()
     {
-        await Task.Delay(500);
-
         IList<WeatherForecast> data = new List<WeatherForecast>();
         if (!_dbContext.WeatherForecasts.Any())
         {
@@ -41,10 +40,42 @@ public class WeatherService : IWeatherService
 
         if (!data.Any())
         {
-            data = await _dbContext.WeatherForecasts.ToListAsync();
+            data = await _dbContext.WeatherForecasts.OrderBy(w => w.Date).ToListAsync();
         }
 
         return data;
 
+    }
+
+    public async Task<(bool,WeatherForecast?)> SaveWeather(int? id, DateOnly date, int tempAsCelsius, string? summary)
+    {
+        try
+        {
+            var weatherItem = await _dbContext.WeatherForecasts.FindAsync(id);
+            if(weatherItem is null) 
+            {
+                weatherItem = new WeatherForecast();
+                _dbContext.WeatherForecasts.Add(weatherItem);
+            }
+            weatherItem.Date = date;
+            weatherItem.TemperatureC = tempAsCelsius;
+            weatherItem.Summary = summary;
+
+            await _dbContext.SaveChangesAsync();
+
+            return (true, weatherItem);
+            
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, ex.Message);
+            
+            return(false,null);
+        }        
+    }
+
+    public async Task DeleteWeather(int id) 
+    {
+        await _dbContext.WeatherForecasts.Where(x => x.Id == id).ExecuteDeleteAsync();
     }
 }

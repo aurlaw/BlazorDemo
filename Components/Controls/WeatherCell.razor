@@ -1,0 +1,43 @@
+@attribute [RenderModeInteractiveServer]
+
+@inject IWeatherService WeatherService
+@inject ILogger<WeatherCell> Logger
+
+
+<tr>
+    <td>@WeatherForecast.Date.ToShortDateString()</td>
+    <td>@WeatherForecast.TemperatureC</td>
+    <td>@WeatherForecast.TemperatureF</td>
+    <td>@WeatherForecast.Summary</td>
+    <td>
+        <button class="btn btn-secondary">Edit</button>
+        <button class="btn btn-danger">Delete</button>
+    </td>
+</tr>
+
+ <!-- Use events to manage reload -->
+@code {
+
+    [Parameter]
+    public WeatherForecast WeatherForecast { get; set; }=null!;
+
+    [SupplyParameterFromForm]
+    private Forecast? Input { get; set; } = default!;
+
+    @* [Parameter]
+    public EventCallback<string> OnSave { get; set; } *@
+
+    private int? Id;
+    protected override void OnInitialized()
+    {
+        if (WeatherForecast is not null)
+        {
+            Input = Forecast.FromEntity(WeatherForecast);
+            Id = Input.Id;
+        }
+        Input ??= new();
+    }
+
+
+
+}

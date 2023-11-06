@@ -1,10 +1,10 @@
 @attribute [RenderModeInteractiveServer]
 
 @inject IWeatherService WeatherService
+@inject ILogger<EditWeather> Logger
 
     
 <h3>@Title</h3>
-<span>@Status</span>
 
 <EditForm id="forecast-form" Model="Input" FormName="editWeather" OnValidSubmit="OnValidSubmitAsync" method="post">
         <DataAnnotationsValidator/>
@@ -41,8 +41,12 @@
     [SupplyParameterFromForm]
     private Forecast? Input { get; set; } = default!;
 
-    private string Status = "Not submitted";
+    [Parameter]
+    public EventCallback<string> OnSave { get; set; }
+
+
     private string Title => IsNew ? "Add Forecast" : "Edit Forecast";
+    private int? Id;
     // https://blazor-university.com/components/component-events/   
 
     protected override void OnInitialized()
@@ -50,14 +54,18 @@
         if (WeatherForecast is not null)
         {
             Input = Forecast.FromEntity(WeatherForecast);
+            Id = Input.Id;
         }
         Input ??= new();
     }
     private async Task OnValidSubmitAsync()
     {
-        await Task.Delay(500);
-        Status = $"Form submitted with temp: {Input.TemperatureC}";
-    // Post data to the server, etc
+        var result = await WeatherService.SaveWeather(Id, Input.Date, Input.TemperatureC, Input.Summary);
+        var message =  result.Item1 ? $"Form submitted with temp: {Input.TemperatureC}" : "Error submitting weather";
+        Logger.LogInformation("Saving");
+        await OnSave.InvokeAsync(message);
+        Logger.LogInformation("Saved");
+
     }    
 
 
