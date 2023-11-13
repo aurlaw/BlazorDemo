@@ -20,6 +20,11 @@
 }
 else
 {
+    <p>
+        @messageText
+    </p>
+
+
     <table class="table">
         <thead>
         <tr>
@@ -43,7 +48,7 @@ else
                     <button class="btn btn-danger">Delete</button>
                 </td>
             </tr> *@
-            <WeatherCell WeatherForecast="forecast" />
+            <WeatherCell WeatherForecast="forecast" OnChange="@OnWeatherCellChange" />
         }
         </tbody>
     </table>
@@ -74,6 +79,7 @@ else
 
     }
 
+    // Callbacks
     private async Task OnWeatherSave(string message) 
     {
         Logger.LogInformation("OnWeatherSave");
@@ -81,5 +87,10 @@ else
         await LoadWeather();        
     }
 
-
+    private async Task OnWeatherCellChange(string message)
+    {
+        Logger.LogInformation("OnCellChange");
+        messageText = message;
+        await LoadWeather();        
+    }
 }

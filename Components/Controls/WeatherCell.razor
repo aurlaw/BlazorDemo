@@ -2,42 +2,70 @@
 
 @inject IWeatherService WeatherService
 @inject ILogger<WeatherCell> Logger
+@inject IJSRuntime  JsRuntime
 
+@if(IsEdit) {
+    <tr>
+        <td colspan="4">
+            EDIT 
+        </td>
+        <td>
+            <button class="btn btn-info" @onclick="OnCancel">Cancel</button>
+        </td>
+    </tr>
 
-<tr>
-    <td>@WeatherForecast.Date.ToShortDateString()</td>
-    <td>@WeatherForecast.TemperatureC</td>
-    <td>@WeatherForecast.TemperatureF</td>
-    <td>@WeatherForecast.Summary</td>
-    <td>
-        <button class="btn btn-secondary">Edit</button>
-        <button class="btn btn-danger">Delete</button>
-    </td>
-</tr>
+} else {
+    <tr>
+        <td>@WeatherForecast.Date.ToShortDateString()</td>
+        <td>@WeatherForecast.TemperatureC</td>
+        <td>@WeatherForecast.TemperatureF</td>
+        <td>@WeatherForecast.Summary</td>
+        <td>
+            <button class="btn btn-secondary" @onclick="OnEdit">Edit</button>
+            <button class="btn btn-danger" @onclick="OnDelete">Delete</button>
+        </td>
+    </tr>
+
+}
 
  <!-- Use events to manage reload -->
 @code {
 
     [Parameter]
     public WeatherForecast WeatherForecast { get; set; }=null!;
+    [Parameter]
+    public EventCallback<string> OnChange { get; set; }
 
-    [SupplyParameterFromForm]
-    private Forecast? Input { get; set; } = default!;
+    @* [SupplyParameterFromForm]
+    private Forecast? Input { get; set; } = default!; *@
 
-    @* [Parameter]
-    public EventCallback<string> OnSave { get; set; } *@
 
-    private int? Id;
+    private int Id;
+    private bool IsEdit;
     protected override void OnInitialized()
     {
-        if (WeatherForecast is not null)
+        Id = WeatherForecast.Id;
+        @* if (WeatherForecast is not null)
         {
             Input = Forecast.FromEntity(WeatherForecast);
             Id = Input.Id;
         }
-        Input ??= new();
+        Input ??= new(); *@
     }
 
 
-
+    private void OnEdit() => IsEdit = true;
+    private void OnCancel() => IsEdit = false;
+    private async Task OnDelete()
+    {
+        Logger.LogInformation("Deleting: {0}?", Id);
+        bool confirmed = await JsRuntime.InvokeAsync<bool>("confirm", "Are you sure you want to delete?"); // Confirm
+        Logger.LogInformation("confirmed?: {0}", confirmed);
+        if(confirmed) 
+        {
+            await WeatherService.DeleteWeather(Id);
+            var message ="Forecast deleted";
+            await OnChange.InvokeAsync(message);
+        }
+    }
 }
