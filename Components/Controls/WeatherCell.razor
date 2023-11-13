@@ -7,7 +7,7 @@
 @if(IsEdit) {
     <tr>
         <td colspan="4">
-            EDIT 
+                <EditWeather WeatherForecast="WeatherForecast" OnSave="@OnWeatherSave"  /> <!-- Use events to manage reload -->
         </td>
         <td>
             <button class="btn btn-info" @onclick="OnCancel">Cancel</button>
@@ -45,12 +45,6 @@
     protected override void OnInitialized()
     {
         Id = WeatherForecast.Id;
-        @* if (WeatherForecast is not null)
-        {
-            Input = Forecast.FromEntity(WeatherForecast);
-            Id = Input.Id;
-        }
-        Input ??= new(); *@
     }
 
 
@@ -68,4 +62,13 @@
             await OnChange.InvokeAsync(message);
         }
     }
+
+    private Task OnWeatherSave(string message) 
+    {
+        Logger.LogInformation("OnWeatherSave: {0}", message);
+
+        IsEdit = false;
+        return Task.CompletedTask;
+    }
+
 }

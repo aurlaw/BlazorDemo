@@ -1,10 +1,15 @@
 ﻿@page "/weather"
+
+@inherits PageBase
+
 @attribute [RenderModeInteractiveServer]
 
 @attribute [StreamRendering(true)]
 
 @inject IWeatherService WeatherService
 @inject ILogger<Weather> Logger
+
+
 
 <PageTitle>Weather</PageTitle>
 
@@ -57,7 +62,7 @@ else
     </p>
 
     
-    <EditWeather IsNew="true" OnSave="@OnWeatherSave"  /> <!-- Use events to manage reload -->
+    <EditWeather OnSave="@OnWeatherSave"  /> <!-- Use events to manage reload -->
     
 
 }
@@ -93,4 +98,7 @@ else
         messageText = message;
         await LoadWeather();        
     }
+
+
+
 }

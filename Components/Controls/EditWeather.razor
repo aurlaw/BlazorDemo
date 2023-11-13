@@ -31,8 +31,6 @@
  <!-- Use events to manage reload -->
 @code {
 
-    [Parameter]
-    public bool IsNew { get; set; } = true;
     
     [Parameter]
     public WeatherForecast? WeatherForecast { get; set; }
@@ -45,9 +43,8 @@
     public EventCallback<string> OnSave { get; set; }
 
 
-    private string Title => IsNew ? "Add Forecast" : "Edit Forecast";
+    private string Title => WeatherForecast is null ? "Add Forecast" : "Edit Forecast";
     private int? Id;
-    // https://blazor-university.com/components/component-events/   
 
     protected override void OnInitialized()
     {
