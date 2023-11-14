@@ -1,8 +1,9 @@
 ﻿@page "/weather"
+@page "/weather/{Page:int}"
 
 @inherits PageBase
 
-@attribute [RenderModeInteractiveServer]
+@rendermode InteractiveServer
 
 @attribute [StreamRendering(true)]
 
@@ -15,7 +16,7 @@
 
 <h1>Weather</h1>
 
-<p>This component demonstrates showing data.</p>
+<p>This component demonstrates showing data. </p>
 
 @if (forecasts == null)
 {
@@ -28,7 +29,11 @@ else
     <p>
         @messageText
     </p>
+    @if(totalItems.HasValue) 
+    {
+        <p>Total Items: @totalItems.Value</p>
 
+    }
 
     <table class="table">
         <thead>
@@ -43,43 +48,45 @@ else
         <tbody>
         @foreach (var forecast in forecasts)
         {
-            @* <tr>
-                <td>@forecast.Date.ToShortDateString()</td>
-                <td>@forecast.TemperatureC</td>
-                <td>@forecast.TemperatureF</td>
-                <td>@forecast.Summary</td>
-                <td>
-                    <button class="btn btn-secondary">Edit</button>
-                    <button class="btn btn-danger">Delete</button>
-                </td>
-            </tr> *@
+
             <WeatherCell WeatherForecast="forecast" OnChange="@OnWeatherCellChange" />
         }
         </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="5">
+                    <Paginator Pager="pager" UrlFormat="/weather/{0}" />
+                </td>
+            </tr>
+        </tfoot>
     </table>
     <p>
         @messageText
     </p>
-
-    
     <EditWeather OnSave="@OnWeatherSave"  /> <!-- Use events to manage reload -->
-    
-
 }
 
 @code {
-    private WeatherForecast[]? forecasts;
+    private IList<WeatherForecast>? forecasts;
+    private int? totalItems;    
     private string messageText = string.Empty;
+    private Pager? pager;
+
+    [Parameter]
+    public int? Page { get; set; }
     protected override async Task OnInitializedAsync()
     {
         Logger.LogInformation("Init");
+        Page ??= 1;
         await LoadWeather();
     }
 
     private async Task LoadWeather() 
     {
-        var data = await WeatherService.GetWeather();
-        forecasts = data.ToArray();
+        PaginatedResult<WeatherForecast> result = await WeatherService.GetWeather(page:Page);
+        forecasts = result.Results;
+        pager = result.PageInfo;
+        totalItems = result.PageInfo.TotalItems;
 
 
     }

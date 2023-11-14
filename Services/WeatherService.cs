@@ -17,8 +17,11 @@ public class WeatherService : IWeatherService
         _logger = logger;
     }
 
-    public async Task<IEnumerable<WeatherForecast>> GetWeather()
+    public async Task<PaginatedResult<WeatherForecast>> GetWeather(int? page = null, int pageSize = 15)
     {
+
+        PaginatedResult<WeatherForecast> result = null!;
+        int p = page.HasValue ? page.Value : 1;
         IList<WeatherForecast> data = new List<WeatherForecast>();
         if (!_dbContext.WeatherForecasts.Any())
         {
@@ -36,14 +39,17 @@ public class WeatherService : IWeatherService
             }
 
             await _dbContext.SaveChangesAsync();
+
+            result = await PaginatedResult<WeatherForecast>.Create(data.AsQueryable(), p, pageSize);
         }
 
         if (!data.Any())
         {
-            data = await _dbContext.WeatherForecasts.OrderBy(w => w.Date).ToListAsync();
+            var query = _dbContext.WeatherForecasts.OrderBy(w => w.Date);
+            result = await PaginatedResult<WeatherForecast>.Create(query, p, pageSize);
         }
 
-        return data;
+        return result;
 
     }
 

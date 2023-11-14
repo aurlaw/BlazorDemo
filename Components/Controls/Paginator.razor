@@ -1,0 +1,98 @@
+@rendermode InteractiveServer
+
+<nav aria-label="Page navigation">
+  <ul class="pagination">
+        @if(@Pager.HasPreviousPage) 
+        {
+            <li class="page-item">
+                <a class="page-link"  aria-label="Previous" href="@PreviousPage">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+        }
+        @foreach(var pages in GetPages()) 
+        {
+            <li class="page-item">
+                @if(pages.Item1 > 0) {
+                    if (pages.Item1 == @Pager.Page)
+                    {
+                        <span class="page-link">@pages.Item2</span>
+                    }
+                    else
+                    {
+                        <a class="page-link" href="@ChangePage(pages.Item1)">@pages.Item2</a>
+                    }
+
+                } else {
+                    <span class="page-link">@pages.Item2</span>
+                }
+            </li>
+
+        }
+        @if(@Pager.HasNextPage) 
+        {
+            <li class="page-item">
+                <a class="page-link"  aria-label="Next" href="@NextPage">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+
+        }
+    </ul>
+</nav>
+
+@code {
+    [Parameter]
+    public Pager Pager {get;set;} = null!;
+
+    [Parameter]
+    public string UrlFormat {get;set;}= null!;// format must contain {Page} i.e. /my-page?page={Page} or /my-page/{Page}
+
+    public string ChangePage(int page)
+    {
+        return string.Format(UrlFormat, page);
+    } 
+    public string NextPage => ChangePage(Pager.Page + 1);
+    public string PreviousPage => ChangePage(Pager.Page - 1);
+
+    public List<Tuple<int,string>> GetPages()
+    {
+        var current = Pager.Page;
+        var last = Pager.TotalPages;
+        var delta = 2;
+        var left = current - delta;
+        var right = current + delta + 1;
+        var range = new List<int>();
+        var rangeWithDots = new List<Tuple<int, string>>();
+        var l = -1;
+
+        for (var i = 1; i <= last; i++)
+        {
+            if (i == 1 || i == last || i >= left && i < right)
+            {
+                range.Add(i);
+            }
+        }
+        foreach (var i in range)
+        {
+            if (l != -1)
+            {
+                if (i - l == 2)
+                {
+                    var n = l + 1;
+                    rangeWithDots.Add(new Tuple<int, string>(n, n.ToString("00")));
+                }
+                else if (i - l != 1)
+                {
+                    rangeWithDots.Add(new Tuple<int, string>(0, "..."));
+                }
+            }
+            rangeWithDots.Add(new Tuple<int, string>(i, i.ToString("00")));
+            l = i;
+        }
+        return rangeWithDots;
+
+
+    }
+
+}
