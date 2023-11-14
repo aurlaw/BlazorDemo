@@ -10,10 +10,13 @@ namespace BlazorDemo.Components.Pages
     public class PageBase : ComponentBase
     {
         [Inject]
-        public IJSRuntime JsRuntime {get;set;}
-        protected async override Task OnAfterRenderAsync(bool firstRender)
+        public IJSRuntime? JsRuntime {get;set;}
+        protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            await JsRuntime.InvokeVoidAsync("applyDefaultTheme");
+            if (JsRuntime is not null)
+            {
+                await JsRuntime.InvokeVoidAsync("applyDefaultTheme");
+            }
 
             await base.OnAfterRenderAsync(firstRender); 
         }

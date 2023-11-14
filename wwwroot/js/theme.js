@@ -75,14 +75,13 @@ const showActiveTheme = (theme, focus = false) => {
     })
   
     window.addEventListener('DOMContentLoaded', () => {
-        console.log('DOMContentLoaded')
-    //   showActiveTheme(getPreferredTheme())
-        applyDefaultTheme();
+        // console.log('DOMContentLoaded')
+       showActiveTheme(getPreferredTheme())
       document.querySelectorAll('[data-bs-theme-value]')
         .forEach(toggle => {
           toggle.addEventListener('click', () => {
             const theme = toggle.getAttribute('data-bs-theme-value')
-            // console.log(theme);
+              console.log(theme);
             setStoredTheme(theme)
             setTheme(theme)
             showActiveTheme(theme, true)
