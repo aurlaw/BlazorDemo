@@ -11,6 +11,32 @@
 
 <button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
 
+<WeatherList>
+    <ListTemplate Context="listOfWeather">
+        <table class="table">
+            <thead>
+                <tr>
+                    <td>Date</td>
+                    <td>Temperature</td>
+                    <td>Summary</td>
+                </tr>
+            </thead>
+            <tbody>
+                @listOfWeather
+            </tbody>
+        </table>
+    </ListTemplate>
+    <ItemTemplate Context="weather">
+        <tr @key=@weather>
+            <td>@weather.Date</td>
+            <td><em>@weather.TemperatureC&deg; (@weather.TemperatureF&deg;)</em></td>
+            <td>@weather.Summary</td>
+        </tr>
+    </ItemTemplate>
+</WeatherList>
+
+
+
 @code {
     private int currentCount = 0;
 

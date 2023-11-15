@@ -8,3 +8,11 @@
 <h1>Hello, world!</h1>
 
 Welcome to your new app.
+
+<WeatherList ShownCount="5">
+    <ItemTemplate Context="weather">
+        <li @key=@weather>
+            @weather.Date <em>@weather.TemperatureC&deg; (@weather.TemperatureF&deg;)</em>
+        </li>
+    </ItemTemplate>
+</WeatherList>

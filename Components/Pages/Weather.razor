@@ -49,7 +49,7 @@ else
         @foreach (var forecast in forecasts)
         {
 
-            <WeatherCell WeatherForecast="forecast" OnChange="@OnWeatherCellChange" />
+            <WeatherCell @key=@forecast WeatherForecast="forecast" OnChange="@OnWeatherCellChange" />
         }
         </tbody>
         <tfoot>

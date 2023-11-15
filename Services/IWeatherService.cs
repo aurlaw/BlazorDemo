@@ -9,4 +9,6 @@ public interface IWeatherService
     Task<(bool,WeatherForecast?)> SaveWeather(int? id, DateOnly date, int tempAsCelsius, string? summary);
 
     Task DeleteWeather(int id);
+
+    Task<WeatherForecast?> GetLatest();
 }

@@ -1,0 +1,87 @@
+@rendermode InteractiveAuto
+@attribute [StreamRendering(true)]
+@inject IWeatherService WeatherService
+@inject ILogger<WeatherList> Logger
+
+<section>
+  Top: <span>@ShownCount</span>
+@if (forecasts == null)
+{
+    <p>
+        <em>Loading...</em>
+    </p>
+}
+else 
+{
+    @ListTemplate(
+        @:@{
+            @foreach(WeatherForecast item in forecasts ?? Array.Empty<WeatherForecast>()) 
+            {
+                @ItemTemplate(item)
+            }
+        }
+    )
+
+}
+</section>
+
+@code {
+/*
+@foreach (TItem item in Data ?? Array.Empty<TItem>())
+  {
+    @ItemTemplate(item)
+  }
+*/
+
+    private IList<WeatherForecast>? forecasts;
+
+    [Parameter]
+    public int ShownCount { get; set; }
+
+    [Parameter]
+    public RenderFragment<RenderFragment> ListTemplate {get;set;}
+    [Parameter]
+    public RenderFragment<WeatherForecast> ItemTemplate {get;set;}
+
+    private async Task LoadWeather() 
+    {
+        PaginatedResult<WeatherForecast> result = await WeatherService.GetWeather(pageSize:ShownCount);
+        forecasts = result.Results;
+    }
+
+    @* protected override async Task OnInitializedAsync() 
+    {
+        Logger.LogInformation("OnInitializedAsync -> ShownCount: {0}", ShownCount);
+    } *@
+    protected override async Task OnParametersSetAsync()
+    {
+        if(ShownCount < 1) 
+        {
+            ShownCount = 10;
+        }
+        if(ItemTemplate is null)
+        {
+            ItemTemplate = (item) => @:@{
+                <li @key=item>@item.ToString()</li>}
+                ;
+        }
+        if(ListTemplate is null) 
+        {
+            ListTemplate = _ => @:@{
+                <ul>
+                    @foreach(WeatherForecast item in forecasts ?? Array.Empty<WeatherForecast>()) 
+                    {
+                        @ItemTemplate(item)
+                    }
+                </ul>
+            }
+            ;
+        }
+
+        await LoadWeather();
+    }
+/*
+
+*/
+
+}

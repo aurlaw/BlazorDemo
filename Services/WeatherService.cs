@@ -84,4 +84,13 @@ public class WeatherService : IWeatherService
     {
         await _dbContext.WeatherForecasts.Where(x => x.Id == id).ExecuteDeleteAsync();
     }
+
+
+    public async Task<WeatherForecast?> GetLatest() 
+    {
+        return await _dbContext.WeatherForecasts
+        .OrderByDescending(w => w.Date)
+        .FirstOrDefaultAsync();
+    }
+
 }
