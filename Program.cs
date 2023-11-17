@@ -6,7 +6,7 @@ using BlazorDemo.Components;
 using BlazorDemo.Data;
 using BlazorDemo.Identity;
 using BlazorDemo.Services;
-using Blazored.LocalStorage;
+using BlazorDemo;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,7 +15,7 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 builder.Services.AddCascadingAuthenticationState();
-builder.Services.AddBlazoredLocalStorage();
+
 builder.Services.AddScoped<UserAccessor>();
 builder.Services.AddScoped<IdentityRedirectManager>();
 builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
@@ -36,6 +36,7 @@ builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.Requ
 
 builder.Services.AddSingleton<IEmailSender, NoOpEmailSender>();
 builder.Services.AddScoped<IWeatherService, WeatherService>();
+builder.Services.AddMultitenancy();
 
 var app = builder.Build();
 
@@ -52,6 +53,7 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseAntiforgery();
 
+app.UseMiddleware<TenantResolutionMiddleware>();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 

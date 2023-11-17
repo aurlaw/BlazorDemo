@@ -1,0 +1,40 @@
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+@inject ProtectedSessionStorage ProtectedSessionStore
+@inject ITenantContext TenantCtx
+@inject ILogger<TenantProvider> Logger
+
+
+CurrentTenant: @CurrentTenant?.Name
+
+@if (CurrentTenant is not null)
+{
+    <CascadingValue Value="@this">
+        @ChildContent
+    </CascadingValue>
+}
+else
+{
+    <p>Loading...</p>
+}
+
+@code {        
+        public Tenant CurrentTenant {get; private set;}=null!;
+        [Parameter]
+        public RenderFragment? ChildContent { get; set; }
+
+            protected override void OnInitialized()
+         {
+                Logger.LogInformation("Provider OnInitialized: {0}", TenantCtx.CurrentTenant);
+                if(TenantCtx.CurrentTenant != null) 
+                {
+                        CurrentTenant = TenantCtx.CurrentTenant;
+                        Logger.LogInformation("Provider set: {0}", CurrentTenant.Name);
+                        Logger.LogInformation("Provider set OnInitialized: {0}", TenantCtx.CurrentTenant);
+                }
+        }
+        @* protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+                Logger.LogInformation("Provider OnAfterRenderAsync: {0} {1}", CurrentTenant, firstRender);
+                                var result = await ProtectedSessionStore.GetAsync<int>("count");
+        } *@
+}

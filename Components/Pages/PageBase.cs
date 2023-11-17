@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BlazorDemo.Tenants;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
@@ -11,6 +12,7 @@ namespace BlazorDemo.Components.Pages
     {
         [Inject]
         public IJSRuntime? JsRuntime {get;set;}
+
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             if (JsRuntime is not null)
